@@ -1,0 +1,177 @@
+:root {
+    --primary: #007bff;
+    --success: #28a745;
+    --danger: #dc3545;
+    --bg: #000;
+    --text: #eee;
+    --border: #444;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text);
+}
+
+.quiz-card {
+    background: #222;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 650px;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #333;
+    padding-bottom: 1rem;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #fff;
+}
+
+.stats {
+    font-weight: 600;
+    color: #e9ecef;
+    background: #495057;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+}
+
+.question-box {
+    font-size: 1.6rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: var(--bg);
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    border: 1px solid #333;
+}
+
+/* Giao diện khối nhập liệu tự luận */
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+}
+
+#user-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.3rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: #111;
+    color: #fff;
+    box-sizing: border-box;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: border-color 0.2s;
+}
+
+#user-input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.preview-box {
+    background: #151515;
+    padding: 0.8rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    min-height: 1.5rem;
+    color: #aaa;
+    border-left: 4px solid var(--primary);
+    line-height: 1.4;
+}
+
+#preview-text {
+    color: rgb(1, 229, 229);
+    font-weight: bold;
+}
+
+.math-keyboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.kbd-btn {
+    padding: 0.8rem;
+    font-size: 1.15rem;
+    font-weight: bold;
+    background: #333;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.kbd-btn:hover {
+    background: #444;
+    border-color: #666;
+}
+
+#clear-btn {
+    background: #555;
+}
+#clear-btn:hover {
+    background: var(--danger);
+}
+
+.controls {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+
+.check-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.check-btn:hover {
+    background: #0056b3;
+}
+
+.next-btn {
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: none;
+    transition: background 0.2s;
+}
+
+.next-btn:hover {
+    background: #218838;
+}
