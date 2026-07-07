@@ -150,27 +150,74 @@ const identities = [
 // --- 3. THUẬT TOÁN CHẤM TỰ LUẬN THÔNG MINH (CANONICALIZATION ENGINE) ---
 
 function canonicalize(str) {
-    let s = str.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+    // 1. Làm sạch sơ bộ (xóa khoảng trắng, dấu nhân)
+    let s = str.toLowerCase().replace(/\s+/g, "").replace(/\./g, "").replace(/\*/g, "");
     s = s.replace(/<sup>Sub<\/sup>/g, "").replace(/<sup>(.*?)<\/sup>/g, "^$1");
     
+    // 2. Hàm sắp xếp biến số bên trong MỘT hạng tử (Giải quyết lỗi -2yx khác -2xy)
+    function sortTerm(term) {
+        let coeffMatch = term.match(/^[+-]?\d*/);
+        let coeffStr = coeffMatch ? coeffMatch[0] : "";
+        let varsPart = term.substring(coeffStr.length);
+        
+        let vars = varsPart.match(/[a-z](?:\^\d+)?/g);
+        if (vars) {
+            vars.sort();
+            return coeffStr + vars.join("");
+        }
+        return term;
+    }
+
+    // 3. Hàm sắp xếp CÁC hạng tử trong một đa thức
     function sortPoly(polyStr) {
         let processed = polyStr.replace(/-/g, "+-");
         let terms = processed.split("+").map(t => t.trim()).filter(t => t.length > 0);
-        terms.sort();
+        
+        // Xử lý đồng bộ biến số trong từng hạng tử trước
+        terms = terms.map(sortTerm);
+        
+        // Sắp xếp các hạng tử, BỎ QUA dấu âm dương để không bị lệch chuẩn bảng chữ cái
+        terms.sort((a, b) => {
+            let valA = a.replace(/^[+-]/, "");
+            let valB = b.replace(/^[+-]/, "");
+            return valA.localeCompare(valB);
+        });
+        
         return terms.join("+").replace(/\+-/g, "-");
     }
     
+    // 4. Xử lý các cụm trong ngoặc
     if (s.includes("(")) {
-        s = s.replace(/\(([^)]+)\)/g, function(match, g1) {
-            return "(" + sortPoly(g1) + ")";
+        s = s.replace(/\(([^)]+)\)(?:\^([0-9]+))?/g, function(match, inside, exp) {
+            let sortedInside = sortPoly(inside);
+            
+            // Giải quyết lỗi hoán đổi phép trừ bình phương: (t - 2a)^2 = (2a - t)^2
+            // Nếu là mũ chẵn (2, 4...) và biểu thức bị xếp dấu âm lên đầu
+            if (exp && parseInt(exp) % 2 === 0) {
+                if (sortedInside.startsWith("-")) {
+                    // Đảo dấu toàn bộ các hạng tử bên trong
+                    sortedInside = sortedInside.replace(/-/g, "TMP")
+                                               .replace(/\+/g, "-")
+                                               .replace(/TMP/g, "+");
+                    // Xóa dấu cộng thừa ở đầu
+                    if (sortedInside.startsWith("+")) {
+                        sortedInside = sortedInside.substring(1);
+                    }
+                }
+            }
+            
+            let expStr = exp ? "^" + exp : "";
+            return "(" + sortedInside + ")" + expStr;
         });
         
+        // Sắp xếp các cụm ngoặc lớn nếu có nhiều ngoặc nhân nhau
         let blocks = s.match(/\([^)]+\)(?:\^[0-9]+)?/g);
         if (blocks) {
             blocks.sort();
             return blocks.join("");
         }
     } else {
+        // Áp dụng thuật toán cho đa thức khai triển tự do
         return sortPoly(s);
     }
     return s;
@@ -213,7 +260,10 @@ function initQuestion() {
 function updatePreview() {
     const val = document.getElementById('user-input').value;
     const previewText = document.getElementById('preview-text');
-    let html = val.replace(/\^([0-9a-zA-Z]+)/g, '<sup>$1</sup>');
+    
+    // Chỉ lấy số hoặc một chữ cái đầu tiên ngay sau dấu ^ làm số mũ
+    let html = val.replace(/\^([0-9]+|[a-z]{1})/g, '<sup>$1</sup>');
+    
     previewText.innerHTML = html || "<i>Chưa nhập gì...</i>";
 }
 
