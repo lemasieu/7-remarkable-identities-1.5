@@ -18,9 +18,17 @@ function buildSum(terms) {
     return res;
 }
 
+// Hàm làm tròn sai số hiển thị và chuyển dấu '.' thành ',' cho chuẩn Việt Nam
+function formatCoeff(num) {
+    // Làm tròn đến tối đa 3 chữ số thập phân để mất đuôi ...0000002
+    let rounded = parseFloat(num.toFixed(3)); 
+    // Chuyển thành chuỗi và thay thế dấu chấm thành dấu phẩy
+    return rounded.toString().replace(/\./g, ",");
+}
+
 // Hàm sinh ngẫu nhiên A và B phiên bản 1.5: Ép số mũ 'exp' luôn bằng 1
 function generateAB() {
-    const coeffs = [2, 3, 4, 5];
+    const coeffs = [1, 2, 3, 4, 5, 0.1, 0.2, 0.5];
     const vars = ['x', 'y', 'a', 'b', 'z', 't'];
     
     const c1 = coeffs[Math.floor(Math.random() * coeffs.length)];
@@ -43,21 +51,21 @@ function generateAB() {
 }
 
 function strTerm(t) {
-    if (!t.var) return `${t.coeff}`;
+    if (!t.var) return `${formatCoeff(t.coeff)}`; // Áp dụng định dạng hệ số tự do
     const vStr = t.exp === 1 ? t.var : `${t.var}<sup>${t.exp}</sup>`;
     if (t.coeff === 1) return vStr;
-    return `${t.coeff}${vStr}`;
+    return `${formatCoeff(t.coeff)}.${vStr}`; // Giữ dấu . ngăn cách hệ số và biến (hoặc bỏ dấu . nếu muốn)
 }
 
 function strPower(t, p) {
     const c = Math.pow(t.coeff, p);
-    if (!t.var) return `${c}`; 
+    if (!t.var) return `${formatCoeff(c)}`; 
     
     const newExp = t.exp * p;
     const vStr = newExp === 1 ? t.var : `${t.var}<sup>${newExp}</sup>`;
     
     if (c === 1) return vStr;
-    return `${c}${vStr}`;
+    return `${formatCoeff(c)}.${vStr}`;
 }
 
 function strProduct(factor, t1, p1, t2, p2) {
@@ -81,9 +89,9 @@ function strProduct(factor, t1, p1, t2, p2) {
     if (v1 && v2) varStr = `${v1}.${v2}`;
     else varStr = v1 || v2;
 
-    if (!varStr) return `${totalCoeff}`;
+    if (!varStr) return `${formatCoeff(totalCoeff)}`;
     if (totalCoeff === 1) return varStr;
-    return `${totalCoeff}.${varStr}`; 
+    return `${formatCoeff(totalCoeff)}.${varStr}`; 
 }
 
 // --- 2. CẤU TRÚC 7 HẰNG ĐẲNG THỨC ĐÁNG NHỚ ---
@@ -151,12 +159,12 @@ const identities = [
 
 function canonicalize(str) {
     // 1. Làm sạch sơ bộ (xóa khoảng trắng, dấu nhân)
-    let s = str.toLowerCase().replace(/\s+/g, "").replace(/\./g, "").replace(/\*/g, "");
+    let s = str.toLowerCase().replace(/\s+/g, "").replace(/\./g, "").replace(/\*/g, "").replace(/,/g, ".");
     s = s.replace(/<sup>Sub<\/sup>/g, "").replace(/<sup>(.*?)<\/sup>/g, "^$1");
     
     // 2. Hàm sắp xếp biến số bên trong MỘT hạng tử (Giải quyết lỗi -2yx khác -2xy)
     function sortTerm(term) {
-        let coeffMatch = term.match(/^[+-]?\d*/);
+        let coeffMatch = term.match(/^[+-]?\d*(?:\.\d+)?/);
         let coeffStr = coeffMatch ? coeffMatch[0] : "";
         let varsPart = term.substring(coeffStr.length);
         
